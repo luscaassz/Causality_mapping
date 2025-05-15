@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados Estatísticos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #2c2f33;
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            background: #23272a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #ffffff;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-size: 1.2em;
+            color: #bbbbbb;
+        }
+
+        select, input {
+            padding: 10px;
+            margin: 5px;
+            background: #1e2124;
+            color: #ffffff;
+            border: 1px solid #7289da;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #5865f2;
+        }
+
+        select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5.555 7.999h8.89L10 13.332z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            padding-right: 30px;
+            width: auto; 
+           
+        }
+
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #7289da, #5865f2);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif !important; /* Fonte alterada */
+            font-size: 1.3em;
+            color: white;
+            min-width: 150px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-box-fem {
+            background: linear-gradient(135deg, #da72af, #f258ad);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif !important; /* Fonte alterada */
+            font-size: 1.3em;
+            color: white;
+            min-width: 150px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-box-FE1, .stat-box-E0, .stat-box-AM {
+            background: linear-gradient(135deg, #72b4da, #5881f2);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif !important; /* Fonte alterada */
+            font-size: 1.3em;
+            color: white;
+            min-width: 150px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-box-FE2, .stat-box-E1, .stat-box-B {
+            background: linear-gradient(135deg, #da72af, #f258ad);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif !important; /* Fonte alterada */
+            font-size: 1.3em;
+            color: white;
+            min-width: 150px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-box-FE3, .stat-box-E2, .stat-box-IN {
+            background: linear-gradient(135deg, #72da7b, #77f258);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif !important; /* Fonte alterada */
+            font-size: 1.3em;
+            color: white;
+            min-width: 150px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-box-FE4, .stat-box-PR {
+            background: linear-gradient(135deg, #7279da, #6258f2);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif !important; /* Fonte alterada */
+            font-size: 1.3em;
+            color: white;
+            min-width: 150px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-box-FE5, .stat-box-PT {
+            background: linear-gradient(135deg, #d3da72, #e8f258);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif !important; /* Fonte alterada */
+            font-size: 1.3em;
+            color: white;
+            min-width: 150px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-box:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 15px rgba(114, 137, 218, 0.8);
+        }
+
+        .stat-box-fem:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 15px rgba(218, 114, 192, 0.8);
+        }
+
+        .stat-box-FE1:hover, .stat-box-E0:hover, .stat-box-AM:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 15px rgba(114, 137, 218, 0.8);
+        }
+
+        .stat-box-FE2:hover, .stat-box-E1:hover, .stat-box-B:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 15px rgba(218, 114, 192, 0.8);
+        }
+
+        .stat-box-FE3:hover, .stat-box-E2:hover, .stat-box-IN:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 15px rgba(114, 218, 114, 0.8);
+        }
+
+        .stat-box-FE4:hover, .stat-box-PR:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 15px rgba(121, 114, 218, 0.8);
+        }
+
+        .stat-box-FE5:hover, .stat-box-PT:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 15px rgba(218, 208, 114, 0.8);
+        }
+
+        canvas {
+            background: #23272a;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        /* Alteração da cor da escala do gráfico */
+        .chartjs-scale {
+            color: #ffffff; /* Alterado para um branco mais forte */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dados Estatísticos</h1>
+        <div class="input-container">
+            <label for="estado">Estado:</label>
+            <select id="estado">
+                <option value="" disabled selected>Selecione um estado</option>
+            </select>
+            <label for="municipio">Município:</label>
+            <select id="municipio">
+                <option value="" disabled selected>🔄 Carregando dados...</option>
+            </select>
+            <label for="tipo_variavel">Tipo de Variável:</label>
+            <select id="tipo_variavel">
+                <option value="ambiental">Ambientais e Socioeconômicas</option>
+                <option value="morbidade">Taxas de Morbidade</option>
+                <option value="mortalidade">Taxas de Mortalidade</option>
+            </select>       
+            <label for="variavel">Variável:</label>
+            <select id="variavel">
+                <option value="" disabled selected></option>
+                <!--
+                <option value="densidade_demografica">Densidade Demográfica</option>
+                <option value="emissao_ch4">Emissão de CH4</option>
+                <option value="emissao_co2">Emissão de CO2</option>
+                <option value="emissao_n2o">Emissão de N2O</option>
+                <option value="pib_per_capita">PIB per Capita</option>
+                <option value="taxa_urbanizacao">Taxa de Urbanização</option>
+
+                <option value="TX_Morb_Circ_Int">Taxa de Morbidade de Doenças Circulatórias Geral</option>
+                <option value="TX_Morb_Classe_Circ_Sexo_Int">Taxa de Morbidade de Doenças Circulatórias por Sexo</option>
+                <option value="TX_Morb_Classe_Circ_FE_Int">Taxa de Morbidade de Doenças Circulatórias por Faixa Etária</option>
+                
+                <option value="TX_Morb_Resp_Int">Taxa de Morbidade de Doenças Respiratórias</option>
+                <option value="TX_Morb_Classe_Resp_FE_Int">Taxa de Morbidade de Doenças Respiratórias por Faixa Etária</option>
+                <option value="TX_Morb_Classe_Resp_Sexo_Int">Taxa de Morbidade de Doenças Respiratórias por Sexo</option>
+        
+                <option value="TX_Morb_Deng">Taxa de Morbidade de Dengue</option>
+                <option value="TX_Morb_FebAm">Taxa de Morbidade de Febre Amarela</option>
+                <option value="TX_Morb_Leish">Taxa de Morbidade de Leishmaniose</option>
+                <option value="TX_Morb_Malar">Taxa de Morbidade de Malária</option>
+
+                <option value="TX_Mort_Circ">Taxa de Mortalidade de Doenças Circulatórias</option>
+                <option value="TX_Mort_Classe_Circ_E">Taxa de Mortalidade de Doenças Circulatórias por Estudo</option>
+                <option value="TX_Mort_Classe_Circ_FE">Taxa de Mortalidade de Doenças Circulatórias por Faixa Etária</option>
+                <option value="TX_Mort_Classe_Circ_Raca">Taxa de Mortalidade de Doenças Circulatórias por Raça</option>
+                <option value="TX_Mort_Classe_Circ_Sexo">Taxa de Mortalidade de Doenças Circulatórias por Sexo</option>
+
+                <option value="TX_Mort_Resp">Taxa de Mortalidade de Doenças Respiratórias</option>
+                <option value="TX_Mort_Classe_Resp_E">Taxa de Mortalidade de Doenças Respiratórias por Estudo</option>
+                <option value="TX_Mort_Classe_Resp_FE">Taxa de Mortalidade de Doenças Respiratórias por Faixa Etária</option>
+                <option value="TX_Mort_Classe_Resp_Raca">Taxa de Mortalidade de Doenças Respiratórias por Raça</option>
+                <option value="TX_Mort_Classe_Resp_Sexo">Taxa de Mortalidade de Doenças Respiratórias por Sexo</option>
+                
+                <option value="TX_Mort_Deng">Taxa de Mortalidade de Dengue</option>
+                <option value="TX_Mort_FebAm">Taxa de Mortalidade de Febre Amarela</option>
+                <option value="TX_Mort_Leish">Taxa de Mortalidade de Leishmaniose</option>
+                <option value="TX_Mort_Malar">Taxa de Mortalidade de Malária</option> -->
+            </select>
+        </div>
+        <div class="input-container year-container">
+            <label for="ano_inicio">Ano Início:</label>
+            <input type="number" id="ano_inicio" value="1999" min="1999" max="2023">
+            <label for="ano_fim">Ano Fim:</label>
+            <input type="number" id="ano_fim" value="2023" min="1999" max="2023">
+        </div>
+        <canvas id="grafico"></canvas>
+        <div id="stats-container" class="stats-container">
+            <div class="stat-box" id="media">Média: -</div>
+            <div class="stat-box" id="mediana">Mediana: -</div>
+            <div class="stat-box" id="desvio">Desvio Padrão: -</div>
+            <div class="stat-box" id="assimetria">Assimetria: -</div>
+            <div class="stat-box" id="curtose">Curtose: -</div>
+            <div class="stat-box" id="outliers">Outliers (%): -</div>
+            <div class="stat-box" id="tipo_distribuicao">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-masc" class="stats-container" style="display: none;">
+            <h2>Masculino</h2>
+            <div class="stat-box" id="media-masc">Média: -</div>
+            <div class="stat-box" id="mediana-masc">Mediana: -</div>
+            <div class="stat-box" id="desvio-masc">Desvio Padrão: -</div>
+            <div class="stat-box" id="assimetria-masc">Assimetria: -</div>
+            <div class="stat-box" id="curtose-masc">Curtose: -</div>
+            <div class="stat-box" id="outliers-masc">Outliers (%): -</div>
+            <div class="stat-box" id="tipo_distribuicao-masc">Tipo de Distribuição: Não disponível</div>
+        </div>
+        
+        <div id="stats-container-fem" class="stats-container" style="display: none;">
+            <h2>Feminino</h2>
+            <div class="stat-box-fem" id="media-fem">Média: -</div>
+            <div class="stat-box-fem" id="mediana-fem">Mediana: -</div>
+            <div class="stat-box-fem" id="desvio-fem">Desvio Padrão: -</div>
+            <div class="stat-box-fem" id="assimetria-fem">Assimetria: -</div>
+            <div class="stat-box-fem" id="curtose-fem">Curtose: -</div>
+            <div class="stat-box-fem" id="outliers-fem">Outliers (%): -</div>
+            <div class="stat-box-fem" id="tipo_distribuicao-fem">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-FE1" class="stats-container" style="display: none;">
+            <h2>FE1</h2>
+            <div class="stat-box-FE1" id="media-FE1">Média: -</div>
+            <div class="stat-box-FE1" id="mediana-FE1">Mediana: -</div>
+            <div class="stat-box-FE1" id="desvio-FE1">Desvio Padrão: -</div>
+            <div class="stat-box-FE1" id="assimetria-FE1">Assimetria: -</div>
+            <div class="stat-box-FE1" id="curtose-FE1">Curtose: -</div>
+            <div class="stat-box-FE1" id="outliers-FE1">Outliers (%): -</div>
+            <div class="stat-box-FE1" id="tipo_distribuicao-FE1">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-FE2" class="stats-container" style="display: none;">
+            <h2>FE2</h2>
+            <div class="stat-box-FE2" id="media-FE2">Média: -</div>
+            <div class="stat-box-FE2" id="mediana-FE2">Mediana: -</div>
+            <div class="stat-box-FE2" id="desvio-FE2">Desvio Padrão: -</div>
+            <div class="stat-box-FE2" id="assimetria-FE2">Assimetria: -</div>
+            <div class="stat-box-FE2" id="curtose-FE2">Curtose: -</div>
+            <div class="stat-box-FE2" id="outliers-FE2">Outliers (%): -</div>
+            <div class="stat-box-FE2" id="tipo_distribuicao-FE2">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-FE3" class="stats-container" style="display: none;">
+            <h2>FE3</h2>
+            <div class="stat-box-FE3" id="media-FE3">Média: -</div>
+            <div class="stat-box-FE3" id="mediana-FE3">Mediana: -</div>
+            <div class="stat-box-FE3" id="desvio-FE3">Desvio Padrão: -</div>
+            <div class="stat-box-FE3" id="assimetria-FE3">Assimetria: -</div>
+            <div class="stat-box-FE3" id="curtose-FE3">Curtose: -</div>
+            <div class="stat-box-FE3" id="outliers-FE3">Outliers (%): -</div>
+            <div class="stat-box-FE3" id="tipo_distribuicao-FE3">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-FE4" class="stats-container" style="display: none;">
+            <h2>FE4</h2>
+            <div class="stat-box-FE4" id="media-FE4">Média: -</div>
+            <div class="stat-box-FE4" id="mediana-FE4">Mediana: -</div>
+            <div class="stat-box-FE4" id="desvio-FE4">Desvio Padrão: -</div>
+            <div class="stat-box-FE4" id="assimetria-FE4">Assimetria: -</div>
+            <div class="stat-box-FE4" id="curtose-FE4">Curtose: -</div>
+            <div class="stat-box-FE4" id="outliers-FE4">Outliers (%): -</div>
+            <div class="stat-box-FE4" id="tipo_distribuicao-FE4">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-FE5" class="stats-container" style="display: none;">
+            <h2>FE5</h2>
+            <div class="stat-box-FE5" id="media-FE5">Média: -</div>
+            <div class="stat-box-FE5" id="mediana-FE5">Mediana: -</div>
+            <div class="stat-box-FE5" id="desvio-FE5">Desvio Padrão: -</div>
+            <div class="stat-box-FE5" id="assimetria-FE5">Assimetria: -</div>
+            <div class="stat-box-FE5" id="curtose-FE5">Curtose: -</div>
+            <div class="stat-box-FE5" id="outliers-FE5">Outliers (%): -</div>
+            <div class="stat-box-FE5" id="tipo_distribuicao-FE5">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-E0" class="stats-container" style="display: none;">
+            <h2>E0</h2>
+            <div class="stat-box-E0" id="media-E0">Média: -</div>
+            <div class="stat-box-E0" id="mediana-E0">Mediana: -</div>
+            <div class="stat-box-E0" id="desvio-E0">Desvio Padrão: -</div>
+            <div class="stat-box-E0" id="assimetria-E0">Assimetria: -</div>
+            <div class="stat-box-E0" id="curtose-E0">Curtose: -</div>
+            <div class="stat-box-E0" id="outliers-E0">Outliers (%): -</div>
+            <div class="stat-box-E0" id="tipo_distribuicao-E0">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-E1" class="stats-container" style="display: none;">
+            <h2>E1</h2>
+            <div class="stat-box-E1" id="media-E1">Média: -</div>
+            <div class="stat-box-E1" id="mediana-E1">Mediana: -</div>
+            <div class="stat-box-E1" id="desvio-E1">Desvio Padrão: -</div>
+            <div class="stat-box-E1" id="assimetria-E1">Assimetria: -</div>
+            <div class="stat-box-E1" id="curtose-E1">Curtose: -</div>
+            <div class="stat-box-E1" id="outliers-E1">Outliers (%): -</div>
+            <div class="stat-box-E1" id="tipo_distribuicao-E1">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-E2" class="stats-container" style="display: none;">
+            <h2>E2</h2>
+            <div class="stat-box-E2" id="media-E2">Média: -</div>
+            <div class="stat-box-E2" id="mediana-E2">Mediana: -</div>
+            <div class="stat-box-E2" id="desvio-E2">Desvio Padrão: -</div>
+            <div class="stat-box-E2" id="assimetria-E2">Assimetria: -</div>
+            <div class="stat-box-E2" id="curtose-E2">Curtose: -</div>
+            <div class="stat-box-E2" id="outliers-E2">Outliers (%): -</div>
+            <div class="stat-box-E2" id="tipo_distribuicao-E2">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-AM" class="stats-container" style="display: none;">
+            <h2>Amarelo</h2>
+            <div class="stat-box-AM" id="media-AM">Média: -</div>
+            <div class="stat-box-AM" id="mediana-AM">Mediana: -</div>
+            <div class="stat-box-AM" id="desvio-AM">Desvio Padrão: -</div>
+            <div class="stat-box-AM" id="assimetria-AM">Assimetria: -</div>
+            <div class="stat-box-AM" id="curtose-AM">Curtose: -</div>
+            <div class="stat-box-AM" id="outliers-AM">Outliers (%): -</div>
+            <div class="stat-box-AM" id="tipo_distribuicao-AM">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-B" class="stats-container" style="display: none;">
+            <h2>Branco</h2>
+            <div class="stat-box-B" id="media-B">Média: -</div>
+            <div class="stat-box-B" id="mediana-B">Mediana: -</div>
+            <div class="stat-box-B" id="desvio-B">Desvio Padrão: -</div>
+            <div class="stat-box-B" id="assimetria-B">Assimetria: -</div>
+            <div class="stat-box-B" id="curtose-B">Curtose: -</div>
+            <div class="stat-box-B" id="outliers-B">Outliers (%): -</div>
+            <div class="stat-box-B" id="tipo_distribuicao-B">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-IN" class="stats-container" style="display: none;">
+            <h2>Indígena</h2>
+            <div class="stat-box-IN" id="media-IN">Média: -</div>
+            <div class="stat-box-IN" id="mediana-IN">Mediana: -</div>
+            <div class="stat-box-IN" id="desvio-IN">Desvio Padrão: -</div>
+            <div class="stat-box-IN" id="assimetria-IN">Assimetria: -</div>
+            <div class="stat-box-IN" id="curtose-IN">Curtose: -</div>
+            <div class="stat-box-IN" id="outliers-IN">Outliers (%): -</div>
+            <div class="stat-box-IN" id="tipo_distribuicao-IN">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-PR" class="stats-container" style="display: none;">
+            <h2>Pardo</h2>
+            <div class="stat-box-PR" id="media-PR">Média: -</div>
+            <div class="stat-box-PR" id="mediana-PR">Mediana: -</div>
+            <div class="stat-box-PR" id="desvio-PR">Desvio Padrão: -</div>
+            <div class="stat-box-PR" id="assimetria-PR">Assimetria: -</div>
+            <div class="stat-box-PR" id="curtose-PR">Curtose: -</div>
+            <div class="stat-box-PR" id="outliers-PR">Outliers (%): -</div>
+            <div class="stat-box-PR" id="tipo_distribuicao-PR">Tipo de Distribuição: Não disponível</div>
+        </div>
+
+        <div id="stats-container-PT" class="stats-container" style="display: none;">
+            <h2>Preto</h2>
+            <div class="stat-box-PT" id="media-PT">Média: -</div>
+            <div class="stat-box-PT" id="mediana-PT">Mediana: -</div>
+            <div class="stat-box-PT" id="desvio-PT">Desvio Padrão: -</div>
+            <div class="stat-box-PT" id="assimetria-PT">Assimetria: -</div>
+            <div class="stat-box-PT" id="curtose-PT">Curtose: -</div>
+            <div class="stat-box-PT" id="outliers-PT">Outliers (%): -</div>
+            <div class="stat-box-PT" id="tipo_distribuicao-PT">Tipo de Distribuição: Não disponível</div>
+        </div>
+        
+    </div>
+
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
