@@ -87,13 +87,38 @@ $(document).ready(function() {
     function getUnidade(variavel) {
         const unidades = {
             'densidade_demografica': 'pessoas/km²',
-            'emissao_ch4': 'toneladas de CH4',
-            'emissao_co2': 'toneladas de CO2',
-            'emissao_n2o': 'toneladas de N2O',
+            'emissao_ch4': 'kg de CH4/m²',
+            'emissao_co2': 'kg de CO2/m²',
+            'emissao_n2o': 'kg de N2O/m²',
             'pib_per_capita': 'R$',
             'taxa_urbanizacao': '%',
 
-            'TX_Morb_Circ_Int': '%'
+            'TX_Morb_Circ_Int': 'casos/100.000 habitantes',
+            'TX_Morb_Classe_Circ_FE_Int': 'casos/100.000 habitantes',
+            'TX_Morb_Classe_Circ_Sexo_Int': 'casos/100.000 habitantes',
+            'TX_Morb_Resp_Int': 'casos/100.000 habitantes',
+            'TX_Morb_Classe_Resp_FE_Int': 'casos/100.000 habitantes',
+            'TX_Morb_Classe_Resp_Sexo_Int': 'casos/100.000 habitantes',
+            'TX_Morb_Deng': 'casos/100.000 habitantes',
+            'TX_Morb_FebAm': 'casos/100.000 habitantes',
+            'TX_Morb_Leish': 'casos/100.000 habitantes',
+            'TX_Morb_Malar': 'casos/100.000 habitantes',
+
+            'TX_Mort_Circ': 'casos/100.000 habitantes',
+            'TX_Mort_Classe_Circ_E': 'casos/100.000 habitantes',
+            'TX_Mort_Classe_Circ_FE': 'casos/100.000 habitantes',
+            'TX_Mort_Classe_Circ_Raca': 'casos/100.000 habitantes',
+            'TX_Mort_Classe_Circ_Sexo': 'casos/100.000 habitantes',
+            'TX_Mort_Resp': 'casos/100.000 habitantes',
+            'TX_Mort_Classe_Resp_E': 'casos/100.000 habitantes',
+            'TX_Mort_Classe_Resp_FE': 'casos/100.000 habitantes',
+            'TX_Mort_Classe_Resp_Raca': 'casos/100.000 habitantes',
+            'TX_Mort_Classe_Resp_Sexo': 'casos/100.000 habitantes',
+            'TX_Mort_Deng': 'casos/100.000 habitantes',
+            'TX_Mort_FebAm': 'casos/100.000 habitantes',
+            'TX_Mort_Leish': 'casos/100.000 habitantes',
+            'TX_Mort_Malar': 'casos/100.000 habitantes'
+
         };
         return unidades[variavel] || '';
     }
