@@ -197,6 +197,27 @@
             box-shadow: 0px 0px 15px rgba(218, 208, 114, 0.8);
         }
 
+        .view-button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #7289da, #5865f2);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .view-button:hover {
+            background: linear-gradient(135deg, #5865f2, #7289da);
+            transform: scale(1.05);
+        }
+
+        .view-button.active {
+            background: linear-gradient(135deg, #f25858, #da7272);
+        }
+
         canvas {
             background: #23272a;
             padding: 10px;
@@ -214,6 +235,7 @@
     <div class="container">
         <h1>Dados Estatísticos</h1>
         <div class="input-container">
+            <button id="toggle-view" class="view-button">Mostrar Previsões (2022-2030)</button>
             <label for="estado">Estado:</label>
             <select id="estado">
                 <option value="" disabled selected>Selecione um estado</option>
