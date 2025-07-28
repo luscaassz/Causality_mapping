@@ -1,5 +1,39 @@
 $(document).ready(function() {
 
+    // Variável para controlar o modo de visualização
+    let isPredictionView = false;
+
+    function toggleView() {
+        isPredictionView = !isPredictionView;
+        const button = $('#toggle-view');
+        const tipoDoencaContainer = $('#tipo-doenca-container');
+        
+        if (isPredictionView) {
+            button.text('Mostrar Dados Históricos');
+            button.addClass('active');
+            tipoDoencaContainer.show();
+            $('#ano_inicio').val(2022).prop('disabled', true);
+            $('#ano_fim').val(2030).prop('disabled', true);
+            // Atualiza o gráfico com o valor padrão
+            $('#tipo_doenca').val('respiratoria');
+            updateGraph();
+        } else {
+            button.text('Mostrar Previsões (2022-2030)');
+            button.removeClass('active');
+            tipoDoencaContainer.hide();
+            $('#ano_inicio').val(1999).prop('disabled', false);
+            $('#ano_fim').val(2023).prop('disabled', false);
+            updateGraph();
+        }
+    }
+
+    // Adicione também este listener para o seletor de tipo de doença
+    $('#tipo_doenca').change(function() {
+        if (isPredictionView) {
+            updateGraph();
+        }
+    });
+    
     // Função para ajustar dinamicamente a largura do elemento <select>
     function adjustSelectWidth(selectElement) {
         let longestOption = 0; // Variável para armazenar o comprimento da maior opção
@@ -131,6 +165,22 @@ $(document).ready(function() {
         let ano_fim = parseInt($('#ano_fim').val());
         let unidade = getUnidade(variavel);
 
+        // Determina qual endpoint chamar baseado na visualização
+        const endpoint = isPredictionView ? '/previsoes' : '/dados';
+        
+        // Parâmetros específicos para previsões
+        const params = isPredictionView ? {
+            estado: $('#estado').val(),  // Adiciona o estado
+            municipio: $('#municipio').val(),
+            tipo_doenca: $('#tipo_doenca').val()
+        } : {
+            estado: $('#estado').val(),
+            municipio: $('#municipio').val(),
+            variavel: $('#variavel').val(),
+            ano_inicio: $('#ano_inicio').val(),
+            ano_fim: $('#ano_fim').val()
+        };
+
         const nomesLegendas = {
             densidade_demografica: 'Densidade Demográfica (hab/km²)',
             emissao_ch4: 'Emissão de CH₄ (toneladas)',
@@ -147,7 +197,7 @@ $(document).ready(function() {
             return;
         }
 
-        $.get('/dados', { estado, municipio, variavel, ano_inicio, ano_fim }, function(response) {
+        $.get(endpoint, params, function(response) {
             chart.data.labels = response.anos;
             chart.data.datasets = [];
 

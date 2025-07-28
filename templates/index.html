@@ -218,6 +218,11 @@
             background: linear-gradient(135deg, #f25858, #da7272);
         }
 
+        #tipo-doenca-container {
+            transition: all 0.3s;
+            margin: 10px 0;
+        }
+
         canvas {
             background: #23272a;
             padding: 10px;
@@ -297,6 +302,13 @@
             <input type="number" id="ano_inicio" value="1999" min="1999" max="2023">
             <label for="ano_fim">Ano Fim:</label>
             <input type="number" id="ano_fim" value="2023" min="1999" max="2023">
+        </div>
+        <div id="tipo-doenca-container" style="display: none;">
+            <label for="tipo_doenca">Tipo de Doença:</label>
+            <select id="tipo_doenca">
+                <option value="respiratoria">Morbidade Respiratória</option>
+                <option value="circulatoria">Morbidade Circulatória</option>
+            </select>
         </div>
         <canvas id="grafico"></canvas>
         <div id="stats-container" class="stats-container">

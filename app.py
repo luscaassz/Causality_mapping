@@ -65,6 +65,9 @@ def carregar_dados():
             dados[nome_var] = df
         except Exception as e:
             print(f"❌ Erro ao carregar {caminho_excel}: {e}")
+
+
+    init_municipios_map()
     
     return dados
 
@@ -115,8 +118,16 @@ TX_Mort_Leish = pickle['TX_Mort_Leish']
 TX_Mort_Malar = pickle['TX_Mort_Malar']
 
 
+municipios_map = None
 
-
+def init_municipios_map():
+    global municipios_map
+    if municipios_map is None:
+        # Cria um mapa composto por estado + nome do município
+        municipios_map = {}
+        for _, row in densidade_demografica.iterrows():
+            chave = f"{row['SIGLA_UF']}_{row['NM_MUN']}"  # Ex: "SP_São Paulo"
+            municipios_map[chave] = row['CD_MUN']
 
 
 # Função para calcular estatísticas
@@ -513,6 +524,58 @@ def dados():
         'dados': [int(valor) if isinstance(valor, (np.integer, int)) else float(valor) for valor in dados.tolist()],
         'estatisticas': estatisticas
     })
+
+@app.route('/previsoes', methods=['GET'])
+def get_previsoes():
+    municipio_nome = request.args.get('municipio')
+    estado = request.args.get('estado')  # Adicionamos o estado como parâmetro
+    tipo_doenca = request.args.get('tipo_doenca')
+    
+    init_municipios_map()
+    chave = f"{estado}_{municipio_nome}"
+    municipio_codigo = municipios_map.get(chave)
+    
+    if municipio_codigo is None:
+        return jsonify({'error': f'Município {municipio_nome} não encontrado.'}), 400
+    
+    try:
+        # Determina qual arquivo CSV carregar
+        csv_file = f'data/morb_{tipo_doenca}.csv'
+        df = pd.read_csv(csv_file)
+        
+        # Converte o código para string para garantir a comparação
+        municipio_codigo_str = str(municipio_codigo)
+        
+        # Encontra a linha do município
+        dados_municipio = df[df['city_code'].astype(str) == municipio_codigo_str]
+        
+        if dados_municipio.empty:
+            return jsonify({'error': f'Dados não encontrados para o município {municipio_nome}.'}), 404
+            
+        dados_municipio = dados_municipio.iloc[0]
+        
+        # Filtra os anos de 2022 a 2030
+        colunas = [col for col in df.columns if col.startswith(('202', '203'))]
+        dados = dados_municipio[colunas].tolist()
+        
+        # Agrupa por ano (calcula a média anual)
+        anos = sorted(list(set([col.split('-')[0]] for col in colunas)))
+        dados_anuais = []
+        
+        for ano in anos:
+            # Filtra as semanas do ano e calcula a média
+            valores_ano = [dados_municipio[col] for col in colunas if col.startswith(ano)]
+            dados_anuais.append(sum(valores_ano) / len(valores_ano))
+        
+        return jsonify({
+            'anos': anos,
+            'dados': dados_anuais,
+            'estatisticas': calcular_estatisticas(pd.Series(dados_anuais))
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 
 if __name__ == '__main__':
