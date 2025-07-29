@@ -540,7 +540,7 @@ def get_previsoes():
     
     try:
         # Determina qual arquivo CSV carregar
-        csv_file = f'data/morb_{tipo_doenca}.csv'
+        csv_file = f'data/preds/pred_morb_{tipo_doenca}.csv'
         df = pd.read_csv(csv_file)
         
         # Converte o código para string para garantir a comparação

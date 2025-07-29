@@ -15,7 +15,7 @@ $(document).ready(function() {
             $('#ano_inicio').val(2022).prop('disabled', true);
             $('#ano_fim').val(2030).prop('disabled', true);
             // Atualiza o gráfico com o valor padrão
-            $('#tipo_doenca').val('respiratoria');
+            $('#tipo_doenca').val('resp');
             updateGraph();
         } else {
             button.text('Mostrar Previsões (2022-2030)');
