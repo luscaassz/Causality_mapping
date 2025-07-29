@@ -160,27 +160,7 @@ $(document).ready(function() {
         let ano_fim = parseInt($('#ano_fim').val());
         let unidade = getUnidade(variavel);
 
-        if (isPredictionView && $('#tipo_variavel').val() === 'morbidade') {
-            $.get('/previsoes', {
-                municipio: municipio,
-                tipo_doenca: currentMorbidityType
-            }, function(response) {
-                // Processar resposta das previsões
-                chart.data.labels = response.anos;
-                chart.data.datasets = [{
-                    label: 'Previsão ' + (currentMorbidityType === 'circ' ? 
-                        'Morbidade Circulatória' : 'Morbidade Respiratória'),
-                    data: response.dados,
-                    borderColor: 'rgba(255, 159, 64, 1)',
-                    fill: false
-                }];
-                chart.update();
-                
-                // Atualizar estatísticas
-                atualizarEstatisticas({ stats: response.estatisticas });
-            }).fail(handleError);
-        }
-        else{
+        
 
             const nomesLegendas = {
                 densidade_demografica: 'Densidade Demográfica (hab/km²)',
@@ -387,7 +367,7 @@ $(document).ready(function() {
                 $('#media, #mediana, #desvio, #assimetria, #curtose, #outliers, #tipo_distribuicao').text('Erro ao obter dados.');
             });
         }
-    }
+    
 
     function atualizarEstatisticas(dados) {
         // Resetar as estatísticas
