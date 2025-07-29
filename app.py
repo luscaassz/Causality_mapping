@@ -546,7 +546,7 @@ def get_previsoes():
 
     try:
         # Carrega os três arquivos para cada tipo de doença
-        base_path = f"data/Preds/pred_morb_{tipo_doenca}"
+        base_path = f"data/preds/pred_morb_{tipo_doenca}"
         df_mean = pd.read_csv(f"{base_path}.csv")
         df_lower = pd.read_csv(f"{base_path}_lower.csv")
         df_upper = pd.read_csv(f"{base_path}_upper.csv")
