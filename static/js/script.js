@@ -210,25 +210,63 @@ $(document).ready(function() {
         }
 
         if (isPredictionView) {
-            // Determina o tipo de doença baseado na variável selecionada
             const tipoDoenca = variavel.includes('Circ') ? 'circ' : 'resp';
             
             $.get('/previsoes', {
                 municipio: municipio,
                 tipo_doenca: tipoDoenca
             }, function(response) {
-                // Processar resposta das previsões
                 chart.data.labels = response.anos;
-                chart.data.datasets = [{
+                
+                // Limpa datasets anteriores
+                chart.data.datasets = [];
+                
+                // Adiciona a área de incerteza (preenchimento entre lower e upper)
+                chart.data.datasets.push({
+                    label: 'Intervalo de Confiança',
+                    data: response.upper,
+                    borderWidth: 0,
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    fill: '-1', // Preenche até o próximo dataset
+                    pointRadius: 0,
+                    borderColor: 'rgba(0,0,0,0)'
+                });
+                
+                // Adiciona a linha de previsão principal
+                chart.data.datasets.push({
                     label: 'Previsão ' + (tipoDoenca === 'circ' ? 
                         'Morbidade Circulatória' : 'Morbidade Respiratória'),
                     data: response.dados,
                     borderColor: 'rgba(255, 159, 64, 1)',
-                    fill: false
-                }];
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.1
+                });
+                
+                // Adiciona a linha inferior (tracejada)
+                chart.data.datasets.push({
+                    label: 'Limite Inferior',
+                    data: response.lower,
+                    borderColor: 'rgba(255, 99, 132, 0.7)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                });
+                
+                // Adiciona a linha superior (tracejada)
+                chart.data.datasets.push({
+                    label: 'Limite Superior',
+                    data: response.upper,
+                    borderColor: 'rgba(75, 192, 192, 0.7)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                });
+                
                 chart.update();
                 
-                // Atualizar estatísticas
                 atualizarEstatisticas({ stats: response.estatisticas });
             }).fail(handleError);
         }

@@ -545,34 +545,44 @@ def get_previsoes():
         return jsonify({'error': 'Município não encontrado.'}), 400
 
     try:
-        # Determina qual arquivo CSV carregar
-        csv_file = f"data/preds/pred_morb_{'circ' if tipo_doenca == 'circ' else 'resp'}.csv"
-        df = pd.read_csv(csv_file)
+        # Carrega os três arquivos para cada tipo de doença
+        base_path = f"data/Preds/pred_morb_{tipo_doenca}"
+        df_mean = pd.read_csv(f"{base_path}.csv")
+        df_lower = pd.read_csv(f"{base_path}_lower.csv")
+        df_upper = pd.read_csv(f"{base_path}_upper.csv")
         
         # Filtra os dados do município
-        dados_municipio = df[df['city_code'].astype(str) == str(municipio_codigo)]
-        if dados_municipio.empty:
+        dados_mean = df_mean[df_mean['city_code'].astype(str) == str(municipio_codigo)]
+        dados_lower = df_lower[df_lower['city_code'].astype(str) == str(municipio_codigo)]
+        dados_upper = df_upper[df_upper['city_code'].astype(str) == str(municipio_codigo)]
+        
+        if dados_mean.empty:
             return jsonify({'error': 'Dados não encontrados para o município.'}), 404
             
-        dados_municipio = dados_municipio.iloc[0]
+        # Processa os dados
+        anos = list(range(2022, 2031))
+        dados_anuais = {
+            'mean': [],
+            'lower': [],
+            'upper': []
+        }
         
-        # Filtra os anos de 2022 a 2030
-        colunas = [col for col in df.columns if col.startswith(('202', '203'))]
-        dados_anuais = []
-        anos = []
-        
-        for ano in range(2022, 2031):
-            colunas_ano = [col for col in colunas if col.startswith(str(ano))]
-            if colunas_ano:
-                media_semana = sum(dados_municipio[col] for col in colunas_ano) / len(colunas_ano)
-                media_ano = media_semana * 52
-                dados_anuais.append(media_ano)
-                anos.append(str(ano))
+        for ano in anos:
+            cols_mean = [col for col in df_mean.columns if col.startswith(str(ano))]
+            cols_lower = [col for col in df_lower.columns if col.startswith(str(ano))]
+            cols_upper = [col for col in df_upper.columns if col.startswith(str(ano))]
+            
+            if cols_mean:
+                dados_anuais['mean'].append(dados_mean.iloc[0][cols_mean].sum())
+                dados_anuais['lower'].append(dados_lower.iloc[0][cols_lower].sum())
+                dados_anuais['upper'].append(dados_upper.iloc[0][cols_upper].sum())
         
         return jsonify({
             'anos': anos,
-            'dados': dados_anuais,
-            'estatisticas': calcular_estatisticas(pd.Series(dados_anuais))
+            'dados': dados_anuais['mean'],
+            'lower': dados_anuais['lower'],
+            'upper': dados_anuais['upper'],
+            'estatisticas': calcular_estatisticas(pd.Series(dados_anuais['mean']))
         })
         
     except Exception as e:
