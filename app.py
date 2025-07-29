@@ -13,13 +13,12 @@ cache.init_app(app)
 municipios_map = None
 
 def init_municipios_map():
-    global municipios_map
-    if municipios_map is None:
-        # Cria um mapa composto por estado + nome do município
-        municipios_map = {}
-        for _, row in densidade_demografica.iterrows():
-            chave = f"{row['SIGLA_UF']}_{row['NM_MUN']}"  # Ex: "SP_São Paulo"
-            municipios_map[chave] = row['CD_MUN']
+        global municipios_map, densidade_demografica
+        if municipios_map is None and 'densidade_demografica' in globals():
+            municipios_map = dict(zip(
+            densidade_demografica['NM_MUN'],
+            densidade_demografica['CD_MUN']
+        ))
 
 @cache.memoize()
 def carregar_dados():
