@@ -218,6 +218,37 @@
             background: linear-gradient(135deg, #F44336, #D32F2F);
         }
 
+        select, label {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        select.hidden, label.hidden {
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+        }
+
+        #variavel {
+            transition: all 0.3s ease;
+        }
+
+        #toggle-view {
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        #toggle-view.active {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        #ano_inicio, #ano_fim, #variavel {
+            transition: all 0.3s ease;
+        }
         canvas {
             background: #23272a;
             padding: 10px;
@@ -235,7 +266,9 @@
     <div class="container">
         <h1>Dados Estatísticos</h1>
         <div class="input-container">
-            <button id="toggle-view" class="view-button" style="display: none;">Mostrar Previsões (2022-2030)</button>
+            <button id="toggle-view" class="view-button" title="Mostrar previsões para morbidade circulatória/respiratória">
+                Mostrar Previsões (2022-2030)
+            </button>
             <label for="estado">Estado:</label>
             <select id="estado">
                 <option value="" disabled selected>Selecione um estado</option>

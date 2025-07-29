@@ -2,25 +2,68 @@ $(document).ready(function() {
 
     // Variável para controlar o modo de visualização
     let isPredictionView = false;
-    let currentMorbidityType = null;
+
+    // Função para tratar erros
+    function handleError(error) {
+        console.error('Erro na requisição:', error);
+        alert('Ocorreu um erro ao carregar os dados. Verifique o console para detalhes.');
+    }
 
     function toggleView() {
+        const municipio = $('#municipio').val();
+        if (!municipio) {
+            alert('Por favor, selecione um município primeiro.');
+            return;
+        }
+
         isPredictionView = !isPredictionView;
         const button = $('#toggle-view');
-        
+        const selectVariavel = $('#variavel');
+        const tipoVariavelSelect = $('#tipo_variavel');
+        const tipoVariavelLabel = tipoVariavelSelect.prev('label');
+
+        // Variáveis que possuem previsões
+        const variaveisComPrevisao = ['TX_Morb_Circ_Int', 'TX_Morb_Resp_Int'];
+
         if (isPredictionView) {
-            button.text('Mostrar Dados Históricos');
-            button.addClass('active');
+            // Configura modo de previsão
+            button.text('Mostrar Dados Históricos').addClass('active');
             $('#ano_inicio').val(2022).prop('disabled', true);
             $('#ano_fim').val(2030).prop('disabled', true);
+            
+            // Esconde o seletor de tipo de variável
+            tipoVariavelSelect.hide();
+            tipoVariavelLabel.hide();
+            
+            // Atualiza opções para mostrar apenas variáveis com previsão
+            selectVariavel.empty();
+            selectVariavel.append(new Option('Taxa de Morbidade de Doenças Circulatórias', 'TX_Morb_Circ_Int'));
+            selectVariavel.append(new Option('Taxa de Morbidade de Doenças Respiratórias', 'TX_Morb_Resp_Int'));
+            
+            // Seleciona automaticamente Doenças Circulatórias
+            selectVariavel.val('TX_Morb_Circ_Int');
         } else {
-            button.text('Mostrar Previsões (2022-2030)');
-            button.removeClass('active');
+            // Volta para modo histórico
+            button.text('Mostrar Previsões (2022-2030)').removeClass('active');
             $('#ano_inicio').val(1999).prop('disabled', false);
             $('#ano_fim').val(2023).prop('disabled', false);
+            
+            // Mostra novamente o seletor de tipo de variável
+            tipoVariavelSelect.show();
+            tipoVariavelLabel.show();
+            
+            // Restaura todas as variáveis do tipo selecionado
+            updateVariaveis();
         }
+        
+        // Atualiza o gráfico
         updateGraph();
     }
+
+
+    $(document).ready(function() {
+        $('#toggle-view').click(toggleView);
+    });
 
     // Adicione também este listener para o seletor de tipo de doença
     $('#tipo_doenca').change(function() {
@@ -28,6 +71,12 @@ $(document).ready(function() {
             updateGraph();
         }
     });
+
+    $('#variavel').change(function() {
+    if (isPredictionView) {
+        updateGraph();
+    }
+});
     
     // Função para ajustar dinamicamente a largura do elemento <select>
     function adjustSelectWidth(selectElement) {
@@ -160,15 +209,23 @@ $(document).ready(function() {
         let ano_fim = parseInt($('#ano_fim').val());
         let unidade = getUnidade(variavel);
 
-        if (isPredictionView && $('#tipo_variavel').val() === 'morbidade') {
+        if (!municipio || !variavel) {
+            console.log('Município ou variável não selecionado');
+            return;
+        }
+
+        if (isPredictionView) {
+            // Determina o tipo de doença baseado na variável selecionada
+            const tipoDoenca = variavel.includes('Circ') ? 'circ' : 'resp';
+            
             $.get('/previsoes', {
                 municipio: municipio,
-                tipo_doenca: currentMorbidityType
+                tipo_doenca: tipoDoenca
             }, function(response) {
                 // Processar resposta das previsões
                 chart.data.labels = response.anos;
                 chart.data.datasets = [{
-                    label: 'Previsão ' + (currentMorbidityType === 'circ' ? 
+                    label: 'Previsão ' + (tipoDoenca === 'circ' ? 
                         'Morbidade Circulatória' : 'Morbidade Respiratória'),
                     data: response.dados,
                     borderColor: 'rgba(255, 159, 64, 1)',
@@ -589,6 +646,9 @@ $(document).ready(function() {
     };
 
     function updateVariaveis() {
+        // Não atualiza se estiver no modo de previsão
+        if (isPredictionView) return;
+        
         const tipoSelecionado = $('#tipo_variavel').val();
         const selectVariavel = $('#variavel');
         
@@ -598,26 +658,14 @@ $(document).ready(function() {
             variaveis[tipoSelecionado].forEach(v => {
                 selectVariavel.append(new Option(v.text, v.value));
             });
-            
-            // Mostra/oculta o botão de previsões
-            if (tipoSelecionado === 'morbidade') {
-                $('#toggle-view').show();
-                currentMorbidityType = $('#variavel').val().includes('Circ') ? 'circ' : 'resp';
-            } else {
-                $('#toggle-view').hide();
-                if (isPredictionView) toggleView();
-            }
         }
-        updateGraph()
+        
+        // Sempre mostrar o botão de previsões
+        $('#toggle-view').show();
+        
+        // Atualiza o gráfico
+        updateGraph();
     }
-
-// Adicione este listener
-$('#variavel').change(function() {
-    if ($('#tipo_variavel').val() === 'morbidade') {
-        currentMorbidityType = $(this).val().includes('Circ') ? 'circ' : 'resp';
-        if (isPredictionView) updateGraph();
-    }
-});
     
 
     $.get('/estados', function(estados) {

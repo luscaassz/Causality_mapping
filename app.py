@@ -546,7 +546,7 @@ def get_previsoes():
 
     try:
         # Determina qual arquivo CSV carregar
-        csv_file = f"data/Preds/morb_{'circ' if tipo_doenca == 'circ' else 'resp'}.csv"
+        csv_file = f"data/Preds/pred_morb_{'circ' if tipo_doenca == 'circ' else 'resp'}.csv"
         df = pd.read_csv(csv_file)
         
         # Filtra os dados do município
@@ -564,7 +564,8 @@ def get_previsoes():
         for ano in range(2022, 2031):
             colunas_ano = [col for col in colunas if col.startswith(str(ano))]
             if colunas_ano:
-                media_ano = sum(dados_municipio[col] for col in colunas_ano) / len(colunas_ano)
+                media_semana = sum(dados_municipio[col] for col in colunas_ano) / len(colunas_ano)
+                media_ano = media_semana * 52
                 dados_anuais.append(media_ano)
                 anos.append(str(ano))
         
