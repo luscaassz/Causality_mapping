@@ -199,28 +199,23 @@
 
         .view-button {
             padding: 10px 20px;
-            background: linear-gradient(135deg, #7289da, #5865f2);
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
             color: white;
             border: none;
             border-radius: 5px;
             font-size: 1em;
             cursor: pointer;
             transition: all 0.3s;
-            margin: 5px;
+            margin-left: 10px;
         }
 
         .view-button:hover {
-            background: linear-gradient(135deg, #5865f2, #7289da);
+            background: linear-gradient(135deg, #2E7D32, #4CAF50);
             transform: scale(1.05);
         }
 
         .view-button.active {
-            background: linear-gradient(135deg, #f25858, #da7272);
-        }
-
-        #tipo-doenca-container {
-            transition: all 0.3s;
-            margin: 10px 0;
+            background: linear-gradient(135deg, #F44336, #D32F2F);
         }
 
         canvas {
@@ -240,7 +235,7 @@
     <div class="container">
         <h1>Dados Estatísticos</h1>
         <div class="input-container">
-            <button id="toggle-view" class="view-button">Mostrar Previsões (2022-2030)</button>
+            <button id="toggle-view" class="view-button" style="display: none;">Mostrar Previsões (2022-2030)</button>
             <label for="estado">Estado:</label>
             <select id="estado">
                 <option value="" disabled selected>Selecione um estado</option>

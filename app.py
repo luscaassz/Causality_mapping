@@ -10,12 +10,14 @@ app = Flask(__name__)
 cache = Cache(config={'CACHE_TYPE': 'simple'})  # ou 'filesystem', 'redis', etc.
 cache.init_app(app)
 
+# Variável global para mapeamento de municípios
 municipios_map = None
+densidade_demografica = None
 
 def init_municipios_map():
-        global municipios_map, densidade_demografica
-        if municipios_map is None and 'densidade_demografica' in globals():
-            municipios_map = dict(zip(
+    global municipios_map, densidade_demografica
+    if municipios_map is None and densidade_demografica is not None:
+        municipios_map = dict(zip(
             densidade_demografica['NM_MUN'],
             densidade_demografica['CD_MUN']
         ))
@@ -533,44 +535,38 @@ def dados():
 @app.route('/previsoes', methods=['GET'])
 def get_previsoes():
     municipio_nome = request.args.get('municipio')
-    estado = request.args.get('estado')  # Adicionamos o estado como parâmetro
-    tipo_doenca = request.args.get('tipo_doenca')
+    tipo_doenca = request.args.get('tipo_doenca')  # 'circ' ou 'resp'
     
-    init_municipios_map()
-    chave = f"{estado}_{municipio_nome}"
-    municipio_codigo = municipios_map.get(chave)
+    if municipios_map is None:
+        init_municipios_map()
     
+    municipio_codigo = municipios_map.get(municipio_nome)
     if municipio_codigo is None:
-        return jsonify({'error': f'Município {municipio_nome} não encontrado.'}), 400
-    
+        return jsonify({'error': 'Município não encontrado.'}), 400
+
     try:
         # Determina qual arquivo CSV carregar
-        csv_file = f'data/preds/pred_morb_{tipo_doenca}.csv'
+        csv_file = f"data/Preds/morb_{'circ' if tipo_doenca == 'circ' else 'resp'}.csv"
         df = pd.read_csv(csv_file)
         
-        # Converte o código para string para garantir a comparação
-        municipio_codigo_str = str(municipio_codigo)
-        
-        # Encontra a linha do município
-        dados_municipio = df[df['city_code'].astype(str) == municipio_codigo_str]
-        
+        # Filtra os dados do município
+        dados_municipio = df[df['city_code'].astype(str) == str(municipio_codigo)]
         if dados_municipio.empty:
-            return jsonify({'error': f'Dados não encontrados para o município {municipio_nome}.'}), 404
+            return jsonify({'error': 'Dados não encontrados para o município.'}), 404
             
         dados_municipio = dados_municipio.iloc[0]
         
         # Filtra os anos de 2022 a 2030
         colunas = [col for col in df.columns if col.startswith(('202', '203'))]
-        dados = dados_municipio[colunas].tolist()
-        
-        # Agrupa por ano (calcula a média anual)
-        anos = sorted(list(set([col.split('-')[0]] for col in colunas)))
         dados_anuais = []
+        anos = []
         
-        for ano in anos:
-            # Filtra as semanas do ano e calcula a média
-            valores_ano = [dados_municipio[col] for col in colunas if col.startswith(ano)]
-            dados_anuais.append(sum(valores_ano) / len(valores_ano))
+        for ano in range(2022, 2031):
+            colunas_ano = [col for col in colunas if col.startswith(str(ano))]
+            if colunas_ano:
+                media_ano = sum(dados_municipio[col] for col in colunas_ano) / len(colunas_ano)
+                dados_anuais.append(media_ano)
+                anos.append(str(ano))
         
         return jsonify({
             'anos': anos,
@@ -580,7 +576,6 @@ def get_previsoes():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 
 if __name__ == '__main__':

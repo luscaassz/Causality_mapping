@@ -2,29 +2,24 @@ $(document).ready(function() {
 
     // Variável para controlar o modo de visualização
     let isPredictionView = false;
+    let currentMorbidityType = null;
 
     function toggleView() {
         isPredictionView = !isPredictionView;
         const button = $('#toggle-view');
-        const tipoDoencaContainer = $('#tipo-doenca-container');
         
         if (isPredictionView) {
             button.text('Mostrar Dados Históricos');
             button.addClass('active');
-            tipoDoencaContainer.show();
             $('#ano_inicio').val(2022).prop('disabled', true);
             $('#ano_fim').val(2030).prop('disabled', true);
-            // Atualiza o gráfico com o valor padrão
-            $('#tipo_doenca').val('resp');
-            updateGraph();
         } else {
             button.text('Mostrar Previsões (2022-2030)');
             button.removeClass('active');
-            tipoDoencaContainer.hide();
             $('#ano_inicio').val(1999).prop('disabled', false);
             $('#ano_fim').val(2023).prop('disabled', false);
-            updateGraph();
         }
+        updateGraph();
     }
 
     // Adicione também este listener para o seletor de tipo de doença
@@ -165,226 +160,233 @@ $(document).ready(function() {
         let ano_fim = parseInt($('#ano_fim').val());
         let unidade = getUnidade(variavel);
 
-        // Determina qual endpoint chamar baseado na visualização
-        const endpoint = isPredictionView ? '/previsoes' : '/dados';
-        
-        // Parâmetros específicos para previsões
-        const params = isPredictionView ? {
-            estado: $('#estado').val(),  // Adiciona o estado
-            municipio: $('#municipio').val(),
-            tipo_doenca: $('#tipo_doenca').val()
-        } : {
-            estado: $('#estado').val(),
-            municipio: $('#municipio').val(),
-            variavel: $('#variavel').val(),
-            ano_inicio: $('#ano_inicio').val(),
-            ano_fim: $('#ano_fim').val()
-        };
-
-        const nomesLegendas = {
-            densidade_demografica: 'Densidade Demográfica (hab/km²)',
-            emissao_ch4: 'Emissão de CH₄ (toneladas)',
-            emissao_co2: 'Emissão de CO₂ (toneladas)',
-            emissao_n2o: 'Emissão de N₂O (toneladas)',
-            pib_per_capita: 'PIB per capita (R$)',
-            taxa_urbanizacao: 'Taxa de Urbanização (%)'
-        };
-
-
-         // Verifica se todos os parâmetros estão preenchidos corretamente
-        if (!estado || !municipio || !variavel || isNaN(ano_inicio) || isNaN(ano_fim)) {
-            console.log('Parâmetros inválidos:', { estado, municipio, variavel, ano_inicio, ano_fim });
-            return;
-        }
-
-        $.get(endpoint, params, function(response) {
-            chart.data.labels = response.anos;
-            chart.data.datasets = [];
-
-            if (variavel === 'TX_Morb_Classe_Circ_Sexo_Int' || variavel === 'TX_Morb_Classe_Resp_Sexo_Int' || variavel === 'TX_Mort_Classe_Circ_Sexo' || variavel === 'TX_Mort_Classe_Resp_Sexo') {
-                chart.data.datasets.push({
-                    label: 'Masculino',
-                    data: response.dados_masculino,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'Feminino',
-                    data: response.dados_feminino,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    fill: false,
-                    spanGaps: true
-                });
-            
-
-                atualizarEstatisticas({ 
-                    masculino: response.estatisticas_masculino, 
-                    feminino: response.estatisticas_feminino 
-                });
-                
-
-            } 
-            else if (variavel === 'TX_Morb_Classe_Circ_FE_Int' || variavel === 'TX_Morb_Classe_Resp_FE_Int' || variavel === 'TX_Mort_Classe_Circ_FE' || variavel === 'TX_Mort_Classe_Resp_FE') {
-                chart.data.datasets.push({
-                    label: 'Menos de 1 ano',
-                    data: response.dados_FE1,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'Entre 1 e 14 anos',
-                    data: response.dados_FE2,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'Entre 15 e 39 anos',
-                    data: response.dados_FE3,
-                    borderColor: 'rgb(37, 238, 10)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'Entre 40 e 59 anos',
-                    data: response.dados_FE4,
-                    borderColor: 'rgb(47, 15, 230)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: '60 anos ou mais',
-                    data: response.dados_FE5,
-                    borderColor: 'rgb(237, 253, 4)',
-                    fill: false,
-                    spanGaps: true
-                });
-            
-
-                atualizarEstatisticas({ 
-                    fe1: response.estatisticas_FE1, 
-                    fe2: response.estatisticas_FE2,
-                    fe3: response.estatisticas_FE3, 
-                    fe4: response.estatisticas_FE4,
-                    fe5: response.estatisticas_FE5
-                });
-                
-
-            }
-            else if (variavel === 'TX_Mort_Classe_Circ_E' || variavel === 'TX_Mort_Classe_Resp_E') {
-                chart.data.datasets.push({
-                    label: 'E0',
-                    data: response.dados_E0,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'E1',
-                    data: response.dados_E1,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'E2',
-                    data: response.dados_E2,
-                    borderColor: 'rgb(37, 238, 10)',
-                    fill: false,
-                    spanGaps: true
-                });
-            
-
-                atualizarEstatisticas({ 
-                    e0: response.estatisticas_E0, 
-                    e1: response.estatisticas_E1,
-                    e2: response.estatisticas_E2 
-                });
-                
-
-            } 
-            else if (variavel === 'TX_Mort_Classe_Circ_Raca' || variavel === 'TX_Mort_Classe_Resp_Raca') {
-                chart.data.datasets.push({
-                    label: 'Amarelo',
-                    data: response.dados_AM,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'Branco',
-                    data: response.dados_B,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'Indígena',
-                    data: response.dados_IN,
-                    borderColor: 'rgb(37, 238, 10)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'Pardo',
-                    data: response.dados_PR,
-                    borderColor: 'rgb(47, 15, 230)',
-                    fill: false,
-                    spanGaps: true
-                });
-                chart.data.datasets.push({
-                    label: 'Preto',
-                    data: response.dados_PT,
-                    borderColor: 'rgb(237, 253, 4)',
-                    fill: false,
-                    spanGaps: true
-                });
-            
-
-                atualizarEstatisticas({ 
-                    am: response.estatisticas_AM, 
-                    b: response.estatisticas_B,
-                    in: response.estatisticas_IN, 
-                    pr: response.estatisticas_PR,
-                    pt: response.estatisticas_PT
-                });
-                
-
-            } 
-            else {
-                chart.data.datasets.push({
-                    label: variavel,
+        if (isPredictionView && $('#tipo_variavel').val() === 'morbidade') {
+            $.get('/previsoes', {
+                municipio: municipio,
+                tipo_doenca: currentMorbidityType
+            }, function(response) {
+                // Processar resposta das previsões
+                chart.data.labels = response.anos;
+                chart.data.datasets = [{
+                    label: 'Previsão ' + (currentMorbidityType === 'circ' ? 
+                        'Morbidade Circulatória' : 'Morbidade Respiratória'),
                     data: response.dados,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    fill: false,
-                    spanGaps: true
-                });
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    fill: false
+                }];
+                chart.update();
+                
+                // Atualizar estatísticas
+                atualizarEstatisticas({ stats: response.estatisticas });
+            }).fail(handleError);
+        }
+        else{
 
-                // Atualizar o label com o nome personalizado
-                chart.data.datasets[0].label = nomesLegendas[variavel] || variavel;
+            const nomesLegendas = {
+                densidade_demografica: 'Densidade Demográfica (hab/km²)',
+                emissao_ch4: 'Emissão de CH₄ (toneladas)',
+                emissao_co2: 'Emissão de CO₂ (toneladas)',
+                emissao_n2o: 'Emissão de N₂O (toneladas)',
+                pib_per_capita: 'PIB per capita (R$)',
+                taxa_urbanizacao: 'Taxa de Urbanização (%)'
+            };
 
-                atualizarEstatisticas({ 
-                    stats: response.estatisticas, 
-                });
+
+            // Verifica se todos os parâmetros estão preenchidos corretamente
+            if (!estado || !municipio || !variavel || isNaN(ano_inicio) || isNaN(ano_fim)) {
+                console.log('Parâmetros inválidos:', { estado, municipio, variavel, ano_inicio, ano_fim });
+                return;
             }
 
-            chart.options.scales.y.title.text = 'Valor (' + unidade + ')';
-            chart.update();
+            $.get(endpoint, params, function(response) {
+                chart.data.labels = response.anos;
+                chart.data.datasets = [];
 
-            if (response.estatisticas) {
-                $('#media').text('Média: ' + (response.estatisticas.mean?.toFixed(2) || 'N/A'));
-                $('#mediana').text('Mediana: ' + (response.estatisticas.median?.toFixed(2) || 'N/A'));
-                $('#desvio').text('Desvio Padrão: ' + (response.estatisticas.std_dev?.toFixed(2) || 'N/A'));
-                $('#assimetria').text('Assimetria: ' + (response.estatisticas.skewness?.toFixed(2) || 'Dados inválidos'));
-                $('#curtose').text('Curtose: ' + (response.estatisticas.kurtosis?.toFixed(2) || 'Dados inválidos'));
-                $('#outliers').text('Outliers: ' + (response.estatisticas.outlier_percentage?.toFixed(2) || 'Dados inválidos') + '%');
-                $('#tipo_distribuicao').text('Tipo de Distribuição: ' + (response.estatisticas.tipo_distribuicao || 'Não disponível'));
-            }                      
-        }).fail(function() {
-            $('#media, #mediana, #desvio, #assimetria, #curtose, #outliers, #tipo_distribuicao').text('Erro ao obter dados.');
-        });
+                if (variavel === 'TX_Morb_Classe_Circ_Sexo_Int' || variavel === 'TX_Morb_Classe_Resp_Sexo_Int' || variavel === 'TX_Mort_Classe_Circ_Sexo' || variavel === 'TX_Mort_Classe_Resp_Sexo') {
+                    chart.data.datasets.push({
+                        label: 'Masculino',
+                        data: response.dados_masculino,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'Feminino',
+                        data: response.dados_feminino,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                
+
+                    atualizarEstatisticas({ 
+                        masculino: response.estatisticas_masculino, 
+                        feminino: response.estatisticas_feminino 
+                    });
+                    
+
+                } 
+                else if (variavel === 'TX_Morb_Classe_Circ_FE_Int' || variavel === 'TX_Morb_Classe_Resp_FE_Int' || variavel === 'TX_Mort_Classe_Circ_FE' || variavel === 'TX_Mort_Classe_Resp_FE') {
+                    chart.data.datasets.push({
+                        label: 'Menos de 1 ano',
+                        data: response.dados_FE1,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'Entre 1 e 14 anos',
+                        data: response.dados_FE2,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'Entre 15 e 39 anos',
+                        data: response.dados_FE3,
+                        borderColor: 'rgb(37, 238, 10)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'Entre 40 e 59 anos',
+                        data: response.dados_FE4,
+                        borderColor: 'rgb(47, 15, 230)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: '60 anos ou mais',
+                        data: response.dados_FE5,
+                        borderColor: 'rgb(237, 253, 4)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                
+
+                    atualizarEstatisticas({ 
+                        fe1: response.estatisticas_FE1, 
+                        fe2: response.estatisticas_FE2,
+                        fe3: response.estatisticas_FE3, 
+                        fe4: response.estatisticas_FE4,
+                        fe5: response.estatisticas_FE5
+                    });
+                    
+
+                }
+                else if (variavel === 'TX_Mort_Classe_Circ_E' || variavel === 'TX_Mort_Classe_Resp_E') {
+                    chart.data.datasets.push({
+                        label: 'E0',
+                        data: response.dados_E0,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'E1',
+                        data: response.dados_E1,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'E2',
+                        data: response.dados_E2,
+                        borderColor: 'rgb(37, 238, 10)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                
+
+                    atualizarEstatisticas({ 
+                        e0: response.estatisticas_E0, 
+                        e1: response.estatisticas_E1,
+                        e2: response.estatisticas_E2 
+                    });
+                    
+
+                } 
+                else if (variavel === 'TX_Mort_Classe_Circ_Raca' || variavel === 'TX_Mort_Classe_Resp_Raca') {
+                    chart.data.datasets.push({
+                        label: 'Amarelo',
+                        data: response.dados_AM,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'Branco',
+                        data: response.dados_B,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'Indígena',
+                        data: response.dados_IN,
+                        borderColor: 'rgb(37, 238, 10)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'Pardo',
+                        data: response.dados_PR,
+                        borderColor: 'rgb(47, 15, 230)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                    chart.data.datasets.push({
+                        label: 'Preto',
+                        data: response.dados_PT,
+                        borderColor: 'rgb(237, 253, 4)',
+                        fill: false,
+                        spanGaps: true
+                    });
+                
+
+                    atualizarEstatisticas({ 
+                        am: response.estatisticas_AM, 
+                        b: response.estatisticas_B,
+                        in: response.estatisticas_IN, 
+                        pr: response.estatisticas_PR,
+                        pt: response.estatisticas_PT
+                    });
+                    
+
+                } 
+                else {
+                    chart.data.datasets.push({
+                        label: variavel,
+                        data: response.dados,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false,
+                        spanGaps: true
+                    });
+
+                    // Atualizar o label com o nome personalizado
+                    chart.data.datasets[0].label = nomesLegendas[variavel] || variavel;
+
+                    atualizarEstatisticas({ 
+                        stats: response.estatisticas, 
+                    });
+                }
+
+                chart.options.scales.y.title.text = 'Valor (' + unidade + ')';
+                chart.update();
+
+                if (response.estatisticas) {
+                    $('#media').text('Média: ' + (response.estatisticas.mean?.toFixed(2) || 'N/A'));
+                    $('#mediana').text('Mediana: ' + (response.estatisticas.median?.toFixed(2) || 'N/A'));
+                    $('#desvio').text('Desvio Padrão: ' + (response.estatisticas.std_dev?.toFixed(2) || 'N/A'));
+                    $('#assimetria').text('Assimetria: ' + (response.estatisticas.skewness?.toFixed(2) || 'Dados inválidos'));
+                    $('#curtose').text('Curtose: ' + (response.estatisticas.kurtosis?.toFixed(2) || 'Dados inválidos'));
+                    $('#outliers').text('Outliers: ' + (response.estatisticas.outlier_percentage?.toFixed(2) || 'Dados inválidos') + '%');
+                    $('#tipo_distribuicao').text('Tipo de Distribuição: ' + (response.estatisticas.tipo_distribuicao || 'Não disponível'));
+                }                      
+            }).fail(function() {
+                $('#media, #mediana, #desvio, #assimetria, #curtose, #outliers, #tipo_distribuicao').text('Erro ao obter dados.');
+            });
+        }
     }
 
     function atualizarEstatisticas(dados) {
@@ -595,10 +597,26 @@ $(document).ready(function() {
             variaveis[tipoSelecionado].forEach(v => {
                 selectVariavel.append(new Option(v.text, v.value));
             });
+            
+            // Mostra/oculta o botão de previsões
+            if (tipoSelecionado === 'morbidade') {
+                $('#toggle-view').show();
+                currentMorbidityType = $('#variavel').val().includes('Circ') ? 'circ' : 'resp';
+            } else {
+                $('#toggle-view').hide();
+                if (isPredictionView) toggleView();
+            }
         }
-    
-        updateGraph(); // Atualiza gráfico automaticamente com a nova variável padrão
+        updateGraph()
     }
+
+// Adicione este listener
+$('#variavel').change(function() {
+    if ($('#tipo_variavel').val() === 'morbidade') {
+        currentMorbidityType = $(this).val().includes('Circ') ? 'circ' : 'resp';
+        if (isPredictionView) updateGraph();
+    }
+});
     
 
     $.get('/estados', function(estados) {
