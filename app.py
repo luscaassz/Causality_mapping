@@ -22,6 +22,8 @@ def init_municipios_map():
 
 @cache.memoize()
 def carregar_dados():
+    global densidade_demografica 
+
     dados = {}
     
     arquivos = {
@@ -75,6 +77,11 @@ def carregar_dados():
             dados[nome_var] = df
         except Exception as e:
             print(f"❌ Erro ao carregar {caminho_excel}: {e}")
+
+            dados[nome_var] = df
+        
+        if nome_var == 'densidade_demografica':
+            densidade_demografica = df
 
 
     init_municipios_map()
