@@ -72,11 +72,6 @@ $(document).ready(function() {
         }
     });
 
-    $('#variavel').change(function() {
-    if (isPredictionView) {
-        updateGraph();
-    }
-});
     
     // Função para ajustar dinamicamente a largura do elemento <select>
     function adjustSelectWidth(selectElement) {
