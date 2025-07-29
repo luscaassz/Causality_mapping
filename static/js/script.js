@@ -178,7 +178,7 @@ $(document).ready(function() {
                 return;
             }
 
-            $.get(endpoint, params, function(response) {
+            $.get('/dados', { estado, municipio, variavel, ano_inicio, ano_fim }, function(response) {
                 chart.data.labels = response.anos;
                 chart.data.datasets = [];
 
