@@ -10,6 +10,17 @@ app = Flask(__name__)
 cache = Cache(config={'CACHE_TYPE': 'simple'})  # ou 'filesystem', 'redis', etc.
 cache.init_app(app)
 
+municipios_map = None
+
+def init_municipios_map():
+    global municipios_map
+    if municipios_map is None:
+        # Cria um mapa composto por estado + nome do município
+        municipios_map = {}
+        for _, row in densidade_demografica.iterrows():
+            chave = f"{row['SIGLA_UF']}_{row['NM_MUN']}"  # Ex: "SP_São Paulo"
+            municipios_map[chave] = row['CD_MUN']
+
 @cache.memoize()
 def carregar_dados():
     dados = {}
@@ -116,18 +127,6 @@ TX_Mort_Deng = pickle['TX_Mort_Deng']
 TX_Mort_FebAm = pickle['TX_Mort_FebAm']
 TX_Mort_Leish = pickle['TX_Mort_Leish']
 TX_Mort_Malar = pickle['TX_Mort_Malar']
-
-
-municipios_map = None
-
-def init_municipios_map():
-    global municipios_map
-    if municipios_map is None:
-        # Cria um mapa composto por estado + nome do município
-        municipios_map = {}
-        for _, row in densidade_demografica.iterrows():
-            chave = f"{row['SIGLA_UF']}_{row['NM_MUN']}"  # Ex: "SP_São Paulo"
-            municipios_map[chave] = row['CD_MUN']
 
 
 # Função para calcular estatísticas
