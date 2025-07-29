@@ -546,7 +546,7 @@ def get_previsoes():
 
     try:
         # Determina qual arquivo CSV carregar
-        csv_file = f"data/Preds/pred_morb_{'circ' if tipo_doenca == 'circ' else 'resp'}.csv"
+        csv_file = f"data/preds/pred_morb_{'circ' if tipo_doenca == 'circ' else 'resp'}.csv"
         df = pd.read_csv(csv_file)
         
         # Filtra os dados do município
