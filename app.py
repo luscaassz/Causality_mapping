@@ -115,18 +115,42 @@ def carregar_previsoes():
                 if os.path.exists(caminho_pickle):
                     df = pd.read_pickle(caminho_pickle)
                 else:
-                    df = pd.read_csv(caminho_csv)
+                    # Força padrão de leitura
+                    df = pd.read_csv(
+                        caminho_csv,
+                        sep=",",       # separador vírgula
+                        decimal=".",   # decimal ponto
+                        skip_blank_lines=True
+                    )
+
+                    # Padroniza nomes de colunas
+                    df.columns = df.columns.str.strip().str.lower()
+
+                    # Se city_code estiver no índice, traz para coluna
+                    if df.index.name == "city_code":
+                        df = df.reset_index()
+
+                    # Verifica se city_code existe
+                    if "city_code" not in df.columns:
+                        raise ValueError(
+                            f"Arquivo {caminho_csv} não possui a coluna 'city_code'. "
+                            f"Colunas encontradas: {list(df.columns)}"
+                        )
+
+                    # Salva como pickle para acelerar próximas leituras
                     df.to_pickle(caminho_pickle)
                     print(f"📦 Criado pickle para previsões: {caminho_pickle}")
                 
                 # Armazena no cache
                 chave = f"pred_morb_{tipo}{sufixo}"
                 previsoes_cache[chave] = df
+
             except Exception as e:
                 print(f"❌ Erro ao carregar previsões {caminho_csv}: {e}")
 
 # Carrega as previsões no início
 carregar_previsoes()
+
 
 # Função otimizada para calcular estatísticas
 def calcular_estatisticas(dados):
