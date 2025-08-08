@@ -284,7 +284,7 @@ $(document).ready(function() {
                 atualizarEstatisticas(response.estatisticas);
             }).fail(handleError);
 
-            chart.options.scales.y.title.text = 'Valor (' + unidade + ')';
+            chart.options.scales.y.title.text = 'Valor (' + getUnidade(variavel) + ')';
         }
         else {
             const nomesLegendas = {
