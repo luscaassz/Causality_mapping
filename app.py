@@ -103,53 +103,57 @@ for nome_var, df in dados_globais.items():
 def carregar_previsoes():
     global previsoes_cache
     
-    tipos_doenca = ['circ', 'resp']
+    tipos_doenca = ['circ', 'resp', 'deng', 'febam', 'leish', 'malar']
     tipos_dados = ['', '_lower', '_upper']
+    tipos_mort = ['morb', 'mort']
     
     for tipo in tipos_doenca:
         for sufixo in tipos_dados:
-            caminho_csv = f"data/preds/pred_morb_{tipo}{sufixo}.csv"
-            caminho_pickle = f"data/preds/pred_morb_{tipo}{sufixo}.pkl"
-            
-            try:
-                if os.path.exists(caminho_pickle):
-                    df = pd.read_pickle(caminho_pickle)
-                else:
-                    # Força padrão de leitura
-                    df = pd.read_csv(
-                        caminho_csv,
-                        sep=",",       # separador vírgula
-                        decimal=".",   # decimal ponto
-                        skip_blank_lines=True
-                    )
-
-                    # Padroniza nomes de colunas
-                    df.columns = df.columns.str.strip().str.lower()
-
-                    # Se city_code estiver no índice, traz para coluna
-                    if df.index.name == "city_code":
-                        df = df.reset_index()
-
-                    # Verifica se city_code existe
-                    if "city_code" not in df.columns:
-                        raise ValueError(
-                            f"Arquivo {caminho_csv} não possui a coluna 'city_code'. "
-                            f"Colunas encontradas: {list(df.columns)}"
+            for tipo_m in tipos_mort:
+                caminho_csv = f"data/preds/pred_{tipo_m}_{tipo}{sufixo}.csv"
+                caminho_pickle = f"data/preds/pred_{tipo_m}_{tipo}{sufixo}.pkl"
+                
+                try:
+                    if os.path.exists(caminho_pickle):
+                        df = pd.read_pickle(caminho_pickle)
+                    else:
+                        # Força padrão de leitura
+                        df = pd.read_csv(
+                            caminho_csv,
+                            sep=",",       # separador vírgula
+                            decimal=".",   # decimal ponto
+                            skip_blank_lines=True
                         )
 
-                    # Salva como pickle para acelerar próximas leituras
-                    df.to_pickle(caminho_pickle)
-                    print(f"📦 Criado pickle para previsões: {caminho_pickle}")
-                
-                # Armazena no cache
-                chave = f"pred_morb_{tipo}{sufixo}"
-                previsoes_cache[chave] = df
+                        # Padroniza nomes de colunas
+                        df.columns = df.columns.str.strip().str.lower()
 
-            except Exception as e:
-                print(f"❌ Erro ao carregar previsões {caminho_csv}: {e}")
+                        # Se city_code estiver no índice, traz para coluna
+                        if df.index.name == "city_code":
+                            df = df.reset_index()
+
+                        # Verifica se city_code existe
+                        if "city_code" not in df.columns:
+                            raise ValueError(
+                                f"Arquivo {caminho_csv} não possui a coluna 'city_code'. "
+                                f"Colunas encontradas: {list(df.columns)}"
+                            )
+
+                        # Salva como pickle para acelerar próximas leituras
+                        df.to_pickle(caminho_pickle)
+                        print(f"📦 Criado pickle para previsões: {caminho_pickle}")
+                    
+                    # Armazena no cache
+                    chave = f"pred_{tipo_m}_{tipo}{sufixo}"
+                    previsoes_cache[chave] = df
+
+                except Exception as e:
+                    print(f"❌ Erro ao carregar previsões {caminho_csv}: {e}")
 
 # Carrega as previsões no início
 carregar_previsoes()
+print("Chaves carregadas no cache de previsões:", previsoes_cache.keys())
+
 
 
 # Função otimizada para calcular estatísticas
@@ -295,7 +299,8 @@ def dados():
 @app.route('/previsoes', methods=['GET'])
 def get_previsoes():
     municipio_nome = request.args.get('municipio')
-    tipo_doenca = request.args.get('tipo_doenca')  # 'circ' ou 'resp'
+    tipo_doenca = request.args.get('tipo_doenca')  # 'circ', 'resp', 'deng', 'febam', 'leish', 'malar'
+    tipo_mort = request.args.get('tipo_mort')  # 'morb' ou 'mort'
     
     if municipio_nome not in municipios_map:
         return jsonify({'error': 'Município não encontrado.'}), 400
@@ -303,9 +308,9 @@ def get_previsoes():
     municipio_codigo = municipios_map[municipio_nome]
     
     # Obtém os dados do cache
-    df_mean = previsoes_cache.get(f'pred_morb_{tipo_doenca}')
-    df_lower = previsoes_cache.get(f'pred_morb_{tipo_doenca}_lower')
-    df_upper = previsoes_cache.get(f'pred_morb_{tipo_doenca}_upper')
+    df_mean = previsoes_cache.get(f'pred_{tipo_mort}_{tipo_doenca}')
+    df_lower = previsoes_cache.get(f'pred_{tipo_mort}_{tipo_doenca}_lower')
+    df_upper = previsoes_cache.get(f'pred_{tipo_mort}_{tipo_doenca}_upper')
     
     if df_mean is None or df_lower is None or df_upper is None:
         return jsonify({'error': 'Dados de previsão não carregados.'}), 500

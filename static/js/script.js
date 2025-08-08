@@ -39,6 +39,18 @@ $(document).ready(function() {
             selectVariavel.empty();
             selectVariavel.append(new Option('Taxa de Morbidade de Doenças Circulatórias', 'TX_Morb_Circ_Int'));
             selectVariavel.append(new Option('Taxa de Morbidade de Doenças Respiratórias', 'TX_Morb_Resp_Int'));
+            selectVariavel.append(new Option('Taxa de Morbidade por Dengue', 'TX_Morb_Deng_Int'));
+            selectVariavel.append(new Option('Taxa de Morbidade por Leishmaniose', 'TX_Morb_Leish_Int'));
+            selectVariavel.append(new Option('Taxa de Morbidade por Malária', 'TX_Morb_Malar_Int'));
+            selectVariavel.append(new Option('Taxa de Morbidade por Febre Amarela', 'TX_Morb_FebAm_Int'));
+
+            selectVariavel.append(new Option('Taxa de Mortalidade de Doenças Circulatórias', 'TX_Mort_Circ_Int'));
+            selectVariavel.append(new Option('Taxa de Mortalidade de Doenças Respiratórias', 'TX_Mort_Resp_Int'));
+            selectVariavel.append(new Option('Taxa de Mortalidade por Dengue', 'TX_Mort_Deng_Int'));
+            selectVariavel.append(new Option('Taxa de Mortalidade por Leishmaniose', 'TX_Mort_Leish_Int'));
+            selectVariavel.append(new Option('Taxa de Mortalidade por Malária', 'TX_Mort_Malar_Int'));
+            selectVariavel.append(new Option('Taxa de Mortalidade por Febre Amarela', 'TX_Mort_FebAm_Int'));
+            
             
             // Seleciona automaticamente Doenças Circulatórias
             selectVariavel.val('TX_Morb_Circ_Int');
@@ -210,11 +222,13 @@ $(document).ready(function() {
         }
 
         if (isPredictionView) {
-            const tipoDoenca = variavel.includes('Circ') ? 'circ' : 'resp';
+            const tipoDoenca = variavel.includes('Circ') ? 'circ' : variavel.includes('Resp') ? 'resp' : variavel.includes('Deng') ? 'deng' : variavel.includes('FebAm') ? 'febam' : variavel.includes('Leish') ? 'leish' : 'malar';
+            const tipo_m = variavel.includes('Morb') ? 'morb' : 'mort';
             
             $.get('/previsoes', {
                 municipio: municipio,
-                tipo_doenca: tipoDoenca
+                tipo_doenca: tipoDoenca,
+                tipo_mort: tipo_m
             }, function(response) {
                 chart.data.labels = response.anos;
                 
