@@ -283,6 +283,8 @@ $(document).ready(function() {
                 
                 atualizarEstatisticas(response.estatisticas);
             }).fail(handleError);
+
+            chart.options.scales.y.title.text = 'Valor (' + unidade + ')';
         }
         else {
             const nomesLegendas = {
