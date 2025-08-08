@@ -325,7 +325,7 @@ def get_previsoes():
             return jsonify({'error': 'Dados não encontrados para o município.'}), 404
         
         # Processa os dados
-        anos = list(range(2022, 2031))
+        anos = list(range(2025, 2031))
         dados_anuais = {
             'mean': [],
             'lower': [],

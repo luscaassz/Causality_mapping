@@ -28,7 +28,7 @@ $(document).ready(function() {
         if (isPredictionView) {
             // Configura modo de previsão
             button.text('Mostrar Dados Históricos').addClass('active');
-            $('#ano_inicio').val(2022).prop('disabled', true);
+            $('#ano_inicio').val(2025).prop('disabled', true);
             $('#ano_fim').val(2030).prop('disabled', true);
             
             // Esconde o seletor de tipo de variável
@@ -235,21 +235,21 @@ $(document).ready(function() {
                 // Limpa datasets anteriores
                 chart.data.datasets = [];
                 
-                // Adiciona a área de incerteza (preenchimento entre lower e upper)
-                chart.data.datasets.push({
-                    label: 'Intervalo de Confiança',
-                    data: response.upper,
-                    borderWidth: 0,
-                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                    fill: '-1', // Preenche até o próximo dataset
-                    pointRadius: 0,
-                    borderColor: 'rgba(0,0,0,0)'
-                });
-                
                 // Adiciona a linha de previsão principal
                 chart.data.datasets.push({
-                    label: 'Previsão ' + (tipoDoenca === 'circ' ? 
-                        'Morbidade Circulatória' : 'Morbidade Respiratória'),
+                    label: 'Previsão ' + (tipoDoenca === 'circ' && tipo_m === 'morb'? 'Morbidade Circulatória' : 
+                                          tipoDoenca === 'resp' && tipo_m === 'morb'? 'Morbidade Respiratória' :
+                                          tipoDoenca === 'deng' && tipo_m === 'morb'? 'Morbidade por Dengue' :
+                                          tipoDoenca === 'febam' && tipo_m === 'morb'? 'Morbidade por Febre Amarela' :
+                                          tipoDoenca === 'leish' && tipo_m === 'morb'? 'Morbidade por Leishmaniose' :
+                                          tipoDoenca === 'malar' && tipo_m === 'morb'? 'Morbidade por Malária' : 
+
+                                          tipoDoenca === 'circ' && tipo_m === 'mort'? 'Mortalidade Circulatória' : 
+                                          tipoDoenca === 'resp' && tipo_m === 'mort'? 'Mortalidade Respiratória' :
+                                          tipoDoenca === 'deng' && tipo_m === 'mort'? 'Mortalidade por Dengue' :
+                                          tipoDoenca === 'febam' && tipo_m === 'mort'? 'Mortalidade por Febre Amarela' :
+                                          tipoDoenca === 'leish' && tipo_m === 'mort'? 'Mortalidade por Leishmaniose' :
+                                          tipoDoenca === 'malar' && tipo_m === 'mort'? 'Mortalidade por Malária' : 'erro na definição'),
                     data: response.dados,
                     borderColor: 'rgba(255, 159, 64, 1)',
                     borderWidth: 3,
@@ -281,7 +281,7 @@ $(document).ready(function() {
                 
                 chart.update();
                 
-                atualizarEstatisticas({ stats: response.estatisticas });
+                atualizarEstatisticas(response.estatisticas);
             }).fail(handleError);
         }
         else {
