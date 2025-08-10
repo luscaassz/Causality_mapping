@@ -285,15 +285,54 @@ def dados():
             
         return jsonify(response_data)
     
-    else:
-        # Lógica padrão para outras variáveis
-        dados = dados_municipio.iloc[0, 6:6 + (ano_fim - ano_inicio + 1)]
+    # Lógica padrão para outras variáveis
+    elif variavel == 'densidade_demografica':
+        cols = [col for col in dados_municipio.columns if col.startswith('DS_POP_')]
+        # Corrige a conversão dos anos
+        anos = []
+        for col in cols:
+            year_part = col.replace('DS_POP_', '')
+            if len(year_part) == 2:  # Formato 99, 00, 01, etc.
+                year = int(year_part)
+                full_year = 1900 + year if year >= 90 else 2000 + year
+                anos.append(full_year)
+            else:  # Formato completo (se houver)
+                anos.append(int(year_part))
+        dados = dados_municipio[cols].iloc[0]
         
-        return jsonify({
-            'anos': list(range(ano_inicio, ano_fim + 1)),
-            'dados': dados.astype(float).fillna(0).tolist(),
-            'estatisticas': calcular_estatisticas(dados)
-        })
+    elif variavel in ['emissao_ch4', 'emissao_co2', 'emissao_n2o']:
+        cols = [col for col in dados_municipio.columns if str(col).isdigit()]
+        anos = [int(col) for col in cols]
+        dados = dados_municipio[cols].iloc[0]
+        
+    elif variavel == 'pib_per_capita':
+        cols = [col for col in dados_municipio.columns if col.startswith('PIB ')]
+        anos = [int(col.replace('PIB ', '')) for col in cols]
+        dados = dados_municipio[cols].iloc[0]
+        
+    elif variavel == 'taxa_urbanizacao':
+        cols = [col for col in dados_municipio.columns if col.startswith('URB_')]
+        anos = [int(col.replace('URB_', '')) for col in cols]
+        dados = dados_municipio[cols].iloc[0]
+        
+    else:
+        # Lógica original para outras variáveis
+        dados = dados_municipio.iloc[0, 6:6 + (ano_fim - ano_inicio + 1)]
+        anos = list(range(ano_inicio, ano_fim + 1))
+    
+    # Filtra pelo período solicitado
+    dados_filtrados = []
+    anos_filtrados = []
+    for ano, valor in zip(anos, dados):
+        if ano_inicio <= ano <= ano_fim:
+            anos_filtrados.append(ano)
+            dados_filtrados.append(valor)
+
+    return jsonify({
+        'anos': anos_filtrados,
+        'dados': dados_filtrados,
+        'estatisticas': calcular_estatisticas(pd.Series(dados_filtrados))
+    })
 
 # Rota otimizada para previsões
 @app.route('/previsoes', methods=['GET'])

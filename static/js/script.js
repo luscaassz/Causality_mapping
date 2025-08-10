@@ -308,6 +308,10 @@ $(document).ready(function() {
                 chart.data.labels = response.anos;
                 chart.data.datasets = [];
 
+                console.log("oi" + response.anos);
+                console.log(response.dados);
+
+
                 if (variavel === 'TX_Morb_Classe_Circ_Sexo_Int' || variavel === 'TX_Morb_Classe_Resp_Sexo_Int' || variavel === 'TX_Mort_Classe_Circ_Sexo' || variavel === 'TX_Mort_Classe_Resp_Sexo') {
                     chart.data.datasets.push({
                         label: 'Masculino',
