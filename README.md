@@ -83,4 +83,4 @@ flask pandas numpy scipy flask-caching openpyxl
 -- Tratamento de outliers – usa o método do IQR (intervalo interquartil) para calcular percentual de outliers.
 
 ## Autor
-Lucas Vieira dos Santos Souza – [GitHub](https://github.com/luscaassz) – [LinkedIn](www.linkedin.com/in/lucas-vieira-dos-santos-souza-45a613305)
+Lucas Vieira dos Santos Souza – [GitHub](https://github.com/luscaassz) – [LinkedIn](https://www.linkedin.com/in/lucas-vieira-dos-santos-souza-45a613305)
